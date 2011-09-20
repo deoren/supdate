@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0107)http://cboard.cprogramming.com/printthread.php?s=854b4bb4261296e902f210c2ea41e70a&threadid=35736&perpage=11 -->
+<HTML><HEAD><TITLE>C Board - Please point out the obvious</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<META content="MSHTML 6.00.2800.1141" name=GENERATOR></HEAD>
+<BODY>
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR vAlign=bottom>
+    <TD><A href="http://cboard.cprogramming.com/"><IMG alt="C Board" 
+      src="C Board - Please point out the obvious_files/cprog.gif" 
+    border=0></A></TD>
+    <TD align=right><FONT class=nf></FONT><BR><FONT class=sf><A 
+      href="http://cboard.cprogramming.com/printthread.php?s=854b4bb4261296e902f210c2ea41e70a&amp;threadid=35736&amp;perpage=11">Show 
+      all 11 posts from this thread on one 
+page</A></FONT></TD></TR></TBODY></TABLE><FONT class=nf>
+<P><B><A href="http://cboard.cprogramming.com/">C Board</A></B> 
+(http://cboard.cprogramming.com/index.php)<BR>- <B><A 
+href="http://cboard.cprogramming.com/forumdisplay.php?forumid=7">Windows 
+Programming</A></B> 
+(http://cboard.cprogramming.com/forumdisplay.php?forumid=7)<BR>-- <B><A 
+href="http://cboard.cprogramming.com/showthread.php?threadid=35736">Please point 
+out the obvious</A></B> 
+(http://cboard.cprogramming.com/showthread.php?threadid=35736)</P>
+<HR>
+<I>Posted by deoren on 03-10-2003 01:16 AM:</I> 
+<P><B><IMG height=15 alt=Question 
+src="C Board - Please point out the obvious_files/icon5.gif" width=15 border=0> 
+Please point out the obvious</B></P>
+<P>Hello all,<BR><BR>I've recently decided to learn C++, and my lack of 
+motivation to do so has been that I learned C first. Unfortunately I never 
+learned it in depth, and I certainly don't know C++ in depth.<BR><BR>So, yes, 
+I'm another newbie.<BR><BR>I have a program which compiles, and works, but if I 
+use VC++ 6.0 to compile it, I get ESP errors. I've done quite a bit of looking 
+around the net, and I keep coming back to what the compiler tells 
+me.<BR><BR>******************************************<BR>The value of ESP was 
+not properly saved across a <BR>function call. This is usually a result of 
+calling<BR>a function declared with one calling convention with<BR>a function 
+pointer declared with a different 
+calling<BR>convention.<BR>******************************************<BR><BR>I've 
+attached the source file so everyone can see what I'm talking about. 
+<BR><BR>That's a bit cryptic for me, but some of you I'm sure it's 
+obvious.<BR><BR>Here is a couple things I do know:<BR><BR>* This program 
+properly compiles<BR>* This program properly executes once compiled (and linked) 
+using DevCpp 4 or DevCpp beta 5 w/mingw32<BR>* The program will compile and link 
+with MS VC++ 6.0, but will NOT execute properly.<BR>* I'm using 
+URLDownloadToFile API, and LoadLibrary along with all other required functions 
+for that concept to work.<BR><BR><BR>I originally used urlmon.lib to link with a 
+previous project with VC++ 6.0, but I wanted to develop this application (this 
+source file is just a small module of a larger project I'm translating, it's 
+actually just one function) to use API calls from dlls rather than compiling 
+using implicit linking and extra header files.<BR><BR>DevCpp wouldn't compile 
+too well with the old method. It now compiles flawlessly.<BR><BR>I just don't 
+understand everything that is going on. I really don't understand why VC 6.0 is 
+complaining like it is.<BR><BR>I apologize for the length of the post, but I'm 
+new and a bit flustered with all of the time I've spent trying to figure it out. 
+C++ can be kinda' daunting...<BR><BR>Thanks.<BR><BR>~ DM<BR><BR>If anyone can 
+look at the attached file and give me some hints as to what's going on, I would 
+greatly appreciate 
+it.<BR><BR>------------------------------------------------------------------------<BR>As 
+of March 14, 2003, this problem has been fixed. Download new source and/or read 
+the following posts to see fix for problem. Thanks for everyone's help.</P>
+<HR>
+<I>Posted by ethic on 03-10-2003 05:30 AM:</I> 
+<P><B></B></P>
+<P>Try changing this:<BR></FONT>
+<BLOCKQUOTE><PRE><FONT class=sf>code:</FONT><HR>
+(*MYPROC)(long,LPCTSTR,LPCTSTR,DWORD,long);
+<HR></PRE></BLOCKQUOTE><FONT class=nf><BR><BR>to this...<BR></FONT>
+<BLOCKQUOTE><PRE><FONT class=sf>code:</FONT><HR>
+(__stdcall * MYPROC)(long,LPCTSTR,LPCTSTR,DWORD,long);
+<HR></PRE></BLOCKQUOTE><FONT class=nf><BR><BR>From what I've been able to find out 
+about that error, the calling<BR>convention of your function-pointer doesn't 
+match the calling<BR>convention of the function you're assigning to it... 
+FARPROC GetProcAddress();<BR><I><BR>FARPROC, I think, is defined as WINAPI 
+(which is __stdcall. And<BR>with VC++, __cdecl is the default calling 
+convention.)<BR></I><BR>I don't know much, though. I'm probably wrong, and not 
+making<BR>much sense. Keep in mind, I had no idea what the heck 
+a<BR>calling-convention was before I decided to reply to your thread.<BR><BR>But 
+when you change it to __stdcall, the error doesn't appear.<BR>And that's what 
+matters.. <IMG alt="" 
+src="C Board - Please point out the obvious_files/smile.gif" border=0>
+<P><FONT class=nf>__________________<BR>...</FONT></P>
+<P></P>
+<HR>
+<I>Posted by deoren on 03-10-2003 06:26 AM:</I> 
+<P><B><IMG height=15 alt=Cool 
+src="C Board - Please point out the obvious_files/icon6.gif" width=15 border=0> 
+;-þ</B></P>
+<P>Cool.<BR><BR><BR>I just did get finished printing out the API requirements 
+from MSDN before I checked this thread again.<BR><BR>It would have taken me days 
+to catch that if (! much &gt;= longer) ;-)<BR><BR>I did notice something that I 
+was wondering about...<BR><BR><BR>(__stdcall * 
+MYPROC)(long,LPCTSTR,LPCTSTR,DWORD,long);<BR><BR><BR>In the above... we're 
+making MYPROC a pointer to ... or rather a function pointer?<BR><BR>Which will 
+pass the values (prototyped for it above?) to the function?<BR><BR>I've been 
+spending the last couple days "just getting it done" without fully grasping what 
+I was doing. It sorta' looked right, but why I couldn't tell 
+anyone...<BR><BR>But anyway, I appreciate your response, and as you reported, it 
+does work great. Thanks so much for taking the time to look at it.<BR><BR>Oh, 
+feel free to make any comments on the code, including better ways to do 
+something if you wish.<BR><BR>Again, thanks!</P>
+<HR>
+<I>Posted by Fordy on 03-10-2003 08:27 AM:</I> 
+<P><B></B></P>
+<P>
+<BLOCKQUOTE><FONT class=sf>quote:</FONT>
+  <HR>
+  <I>Originally posted by ethic </I><BR><B>I don't know much, though. I'm 
+  probably wrong, and not making<BR>much sense. Keep in mind, I had no idea what 
+  the heck a<BR>calling-convention was before I decided to reply to your 
+  thread.</B>
+  <HR>
+</BLOCKQUOTE><BR><BR>Wel....your own reservations aside - your 
+right!!!<BR><BR>Windows APIS almost all use STDCALL......but C compilers default 
+to the C calling convention..<BR><BR>When you call a function, the params are 
+copied to the stack......The main difference between the conventions is that 
+with STDCALL, the called function wipes them off the stack....but with the C 
+convention, the code that called the function does this right after the function 
+returns.....so in your case, the called function didnt clean up, neither did the 
+calling code, therefore the stack still had the params on it.....the debug 
+version of your code checks to see that the stack is in the state it should be, 
+and as it isnt, it asserts - creating the error
+<P><FONT class=nf>__________________<BR><I>"Put the key of despair into the lock 
+of apathy. Turn the knob of mediocrity slowly and open the gates of despondency 
+- welcome to a day in the average office."</I><BR><BR><A 
+href="http://www.cprogramming.com/cboard/announcement.php?s=&amp;forumid=7" 
+notarget>Board Rules</A></FONT></P>
+<P></P>
+<HR>
+<I>Posted by deoren on 03-14-2003 01:40 PM:</I> 
+<P><B><IMG height=15 alt=Post 
+src="C Board - Please point out the obvious_files/icon1.gif" width=15 border=0> 
+Fixes &amp; stdcall</B></P>
+<P>
+<BLOCKQUOTE><FONT class=sf>quote:</FONT>
+  <HR>
+  Windows APIS almost all use STDCALL......but C compilers default to the C 
+  calling convention..<BR>
+  <HR>
+</BLOCKQUOTE><BR><BR>Let me show my ignorance here...<BR>Is STDCALL a MS calling 
+convention Or is it a C++ calling convention?<BR><BR>Also, I've updated that 
+code, with many more comments. Maybe too many. ;-) I thought it would be worth 
+it however for somebody to have something they can learn by.<BR>So if anyone 
+wants to use it as a building block, they're welcome to.<BR><BR>It uses several 
+API calls:<BR>* LoadLibrary<BR>* GetProcAddress<BR>* FreeLibrary<BR><BR>[All of 
+the above are defined within windows.h]<BR>as well as an additional function, 
+for which all of the others are needed to retrieve, and dispense with a .dll 
+library to get:<BR><BR>URLDownloadToFile from the urlmon.dll <BR><BR>Once again, 
+thanks for the help guys!<BR><BR>~ Deoren
+<P></P>
+<HR>
+<I>Posted by Fordy on 03-14-2003 07:02 PM:</I> 
+<P><B>Re: Fixes &amp; stdcall</B></P>
+<P>
+<BLOCKQUOTE><FONT class=sf>quote:</FONT>
+  <HR>
+  <I>Originally posted by deoren </I><BR><B>Let me show my ignorance 
+  here...<BR>Is STDCALL a MS calling convention Or is it a C++ calling 
+  convention? </B>
+  <HR>
+</BLOCKQUOTE><BR><BR>Neither...it doesnt really relate to the language employed 
+or the vendor...its just a convention on how params are passed onto the stack 
+and who is responsible wor taking them off
+<P><FONT class=nf>__________________<BR><I>"Put the key of despair into the lock 
+of apathy. Turn the knob of mediocrity slowly and open the gates of despondency 
+- welcome to a day in the average office."</I><BR><BR><A 
+href="http://www.cprogramming.com/cboard/announcement.php?s=&amp;forumid=7" 
+notarget>Board Rules</A></FONT></P>
+<P></P>
+<HR>
+<I>Posted by deoren on 03-15-2003 06:25 AM:</I> 
+<P><B><IMG height=15 alt=Unhappy 
+src="C Board - Please point out the obvious_files/icon9.gif" width=15 border=0> 
+calling convention</B></P>
+<P>I'm sorry... I still don't understand.<BR><BR>I understand the differences 
+between the __stdcall and __cdecl conventions that you both talked about. Or 
+sort of... I understand at least that &lt;I&gt;there is&lt;/I&gt; a 
+difference.<BR><BR>Are you saying it's how the program acts once it's been 
+converting to machine code... or ...<BR><BR>I'm lost here...</P>
+<HR>
+<I>Posted by Fordy on 03-15-2003 12:12 PM:</I> 
+<P><B>Re: calling convention</B></P>
+<P>
+<BLOCKQUOTE><FONT class=sf>quote:</FONT>
+  <HR>
+  <I>Originally posted by deoren </I><BR><B>I'm sorry... I still don't 
+  understand.<BR><BR>I understand the differences between the __stdcall and 
+  __cdecl conventions that you both talked about. Or sort of... I understand at 
+  least that &lt;I&gt;there is&lt;/I&gt; a difference.<BR><BR>Are you saying 
+  it's how the program acts once it's been converting to machine code... or 
+  ...<BR><BR>I'm lost here... </B>
+  <HR>
+</BLOCKQUOTE><BR><BR>Yes, its on a machine code level......so its not something 
+you need to worry about...only be aware of<BR><BR></FONT>
+<BLOCKQUOTE><PRE><FONT class=sf>code:</FONT><HR>
+#include &lt;iostream&gt;
+
+
+void _cdecl Hello1(const char* szBuff)
+//force C calling convention
+{
+	std::cout &lt;&lt; szBuff &lt;&lt; std::endl;
+}
+
+void _stdcall Hello2(const char* szBuff)
+//force STDCALL calling convention
+{
+	std::cout &lt;&lt; szBuff &lt;&lt; std::endl;
+}
+
+int main()
+{
+	const char* szBuff = "Hello World";
+
+	__asm
+	{
+		push szBuff //push the param onto the stack
+		call Hello1 //call the function
+		add esp,4 //restore the stack to previous state
+
+		push szBuff //push the param onto the stack
+		call Hello2 //call the function
+		//dont restore stack as Hello2 will do that
+	}
+	
+	return 0;
+}<HR></PRE></BLOCKQUOTE><FONT class=nf>
+<P><FONT class=nf>__________________<BR><I>"Put the key of despair into the lock 
+of apathy. Turn the knob of mediocrity slowly and open the gates of despondency 
+- welcome to a day in the average office."</I><BR><BR><A 
+href="http://www.cprogramming.com/cboard/announcement.php?s=&amp;forumid=7" 
+notarget>Board Rules</A></FONT></P>
+<P></P>
+<HR>
+<I>Posted by deoren on 03-15-2003 08:05 PM:</I> 
+<P><B><IMG height=15 alt=Smile 
+src="C Board - Please point out the obvious_files/icon7.gif" width=15 border=0> 
+I'm getting it...</B></P>
+<P>Cool. That's making a lot more sense. So it's a way to implement in C++, 
+what's actually going on at a lower level, right? So basically when you say it's 
+not a particular language convention, you're saying that it's the way that any 
+language works with the stack?<BR><BR>Forgive me if I'm assuming too 
+much...<BR><BR>Also, what does the </FONT>
+<BLOCKQUOTE><PRE><FONT class=sf>code:</FONT><HR> add esp,4 <HR></PRE></BLOCKQUOTE><FONT class=nf>do? How does it set the stack back to normal? 
+When you called the function by C calling conventions, does it alter the stack 
+by 4? Such as taking 4 away?<BR><BR>BTW, I really appreciate you taking time to 
+reply to my posts. I feel like I'm getting a lot out of them! <IMG alt="" 
+src="C Board - Please point out the obvious_files/smile.gif" border=0>
+<P></P>
+<HR>
+<I>Posted by Fordy on 03-15-2003 09:37 PM:</I> 
+<P><B></B></P>
+<P>Ok...in my code above I push a 4 byte value (actually a 32bit pointer to a 
+string) onto the stack....the stack pointer is held in the ESP register for 
+Intel type chips...tht register is decreased 4 bytes as you have added 4 bytes 
+to the stack....after this param is no longer needed, the ADD instruction 
+increases the ESP register by 4 (bytes) therefore returning the stack position 
+to the same place before the CALL
+<P><FONT class=nf>__________________<BR><I>"Put the key of despair into the lock 
+of apathy. Turn the knob of mediocrity slowly and open the gates of despondency 
+- welcome to a day in the average office."</I><BR><BR><A 
+href="http://www.cprogramming.com/cboard/announcement.php?s=&amp;forumid=7" 
+notarget>Board Rules</A></FONT></P>
+<P></P>
+<HR>
+<I>Posted by deoren on 03-15-2003 09:59 PM:</I> 
+<P><B><IMG height=15 alt=Lightbulb 
+src="C Board - Please point out the obvious_files/icon3.gif" width=15 border=0> 
+Ah!</B></P>
+<P>Makes perfect sense. Thanks for your paitence. ;-)</P>
+<HR>
+</FONT>
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
+  <TBODY>
+  <TR vAlign=top>
+    <TD><FONT class=nf>All times are GMT. The time now is 02:49 AM.</FONT></TD>
+    <TD align=right><FONT class=nf></FONT><BR><FONT class=sf><A 
+      href="http://cboard.cprogramming.com/printthread.php?s=854b4bb4261296e902f210c2ea41e70a&amp;threadid=35736&amp;perpage=11">Show 
+      all 11 posts from this thread on one page</A></FONT></TD></TR></TBODY></TABLE>
+<P align=center><FONT class=sf>Powered by: vBulletin Version 2.2.7<BR>Copyright 
+© Jelsoft Enterprises Limited 2000, 2001.<BR></FONT></P></BODY></HTML>

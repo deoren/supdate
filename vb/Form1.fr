@@ -1,0 +1,226 @@
+VERSION 5.00
+Begin VB.Form Form1 
+   BackColor       =   &H00404040&
+   Caption         =   "URLDownloadToFile API"
+   ClientHeight    =   3150
+   ClientLeft      =   3405
+   ClientTop       =   4110
+   ClientWidth     =   4470
+   LinkTopic       =   "Form1"
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
+   ScaleHeight     =   3150
+   ScaleWidth      =   4470
+   Begin VB.TextBox Text1 
+      Height          =   285
+      Left            =   720
+      TabIndex        =   1
+      Top             =   2040
+      Width           =   2655
+   End
+   Begin VB.CommandButton Command1 
+      BackColor       =   &H00000080&
+      Caption         =   "Get File!"
+      Height          =   495
+      Left            =   1440
+      Style           =   1  'Graphical
+      TabIndex        =   0
+      Top             =   1440
+      Width           =   1215
+   End
+End
+Attribute VB_Name = "Form1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+'   GENERAL NOTES ABOUT PROGRAM      '
+' This is the first prototype version which does not use the settings.ini Server Version file
+' All old update files are deleted every time this is ran.  Current ones are left, and program exits cleanly
+' The updates folder will be shared with ReadOnly & PasswordCleared Attributes
+' Add the 'Hiding your program in the ctrl-Alt-Del list' function
+' The ret variable is being changed everytime the .ini function is used...
+Option Explicit
+
+'API Function for downloading files with no dialog boxes, which is good for background downloading without user input
+Public Function DownloadFile(URL As String, _
+    LocalFilename As String) As Boolean
+
+    Dim lngRetVal As Long
+    
+    lngRetVal = URLDownloadToFile(0, URL, LocalFilename, 0, 0)
+    
+    If lngRetVal = 0 Then DownloadFile = True
+End Function
+
+Private Sub Form_Load()
+'This section of code prevents more than one instance from running
+If App.PrevInstance Then
+    'This bit of code below came from "Hardcore Visual Basic"
+    Dim sTitle As String
+    'Save my title
+    sTitle = Me.Caption
+    'Change my title bar so I won't activate myself
+    Me.Caption = Hex$(Me.hWnd)
+    'Activate other instance
+    AppActivate sTitle
+    'Terminate myself
+    End
+    End If
+End Sub
+
+Private Sub Command1_Click()
+Dim sFile As String, FileList As String
+Dim ret As Long
+Dim Temp As String * 50 'This is the returned string
+
+' Get update.ini off of McAfee's FTP Server
+FileList = DownloadFile("ftp://ftp.mcafee.com/pub/datfiles/english/update.ini", "C:\updates\McAfee\update.ini") = True
+If Error Then
+MsgBox Err.Number, vbCritical, "DownloadFile Update.ini"
+
+' Create Variables and load with values for update files
+Dim lpAppName As String, lpKeyName As String, lpDefault As String, lpFileName As String
+lpAppName = "SuperDat-IA32" 'Section Name to search
+DatKeyName = "DATVersion" 'KeyName
+lpDefault = vbNullString 'Returned value if it cannot find key
+lpFileName = "C:\updates\McAfee\update.ini" 'Where to get (read) the .ini file
+
+' Read Update.ini with above search guidelines
+ret = GetPrivateProfileString(lpAppName, lpKeyName, lpDefault, Temp, Len(Temp), lpFileName)
+If ret = 0 Then
+ MsgBox Err.Number, vbCritical, "Sdat .ini file access"
+Else
+  Dim sdatVer As String
+  Version = Trim(Temp1)
+  'txtvalue.Text = Trim(Temp)
+End If
+
+'THIS LOADS MCAFEE'S CURRENT AVAILABLE UPDATE VERSION
+Dim sDATKeyName As String
+'lpAppName = "SuperDat-IA32" 'Section Name to search
+sDATKeyName = "FileName" 'KeyName
+'lpDefault = vbNullString 'Returned value if it cannot find key
+'lpFileName = "C:\updates\McAfee\update.ini" 'Where to get (read) the .ini file
+
+' Read Update.ini with above search guidelines
+ret = GetPrivateProfileString(lpAppName, sDATKeyName, lpDefault, Temp, Len(Temp), lpFileName)
+If ret = 0 Then
+ MsgBox Err.Number, vbCritical, "Sdat .ini file access"
+Else
+  Dim sdatVer As String
+  sdatVer = Trim(Temp) 'sdat41xx.exe value; (ie., sdat4170.exe)
+End If
+
+
+Dim sdatNew As Boolean
+'Tests for the T/F condition of "Is the sdat file on file current with website?"
+sdatNew = Dir$("C:\updates\McAfee\" & sdatVer) = True
+If sdatNew = False Then
+'Get rid of all old sdat files
+Kill "C:\updates\McAfee\sdat*.exe"
+'THEN DOWNLOAD NEW VERSION
+Else
+GoTo EndOfProgram 'since sdat on file is the same as ftp site
+End If
+
+
+'DOWNLOADS LATEST SUPERDAT
+'This is not correct location, but is here just for conformity
+Dim sdatFile As Boolean 'If there is an error for sdatFile check this "As" usage
+sdatFile = DownloadFile("ftp://ftp.mcafee.com/pub/datfiles/english/" & sdatVer, "C:\updates\McAfee\" & sdatVer) = True
+If Error Then
+MsgBox Err.Number, vbCritical, "DownloadFile sdatFile"
+
+'S_OK        Operation Succeeded
+
+
+Dim zipAppName As String, zipKeyName As String
+zipAppName = "ZIP" 'Section Name to search
+zipKeyName = "FileName" 'KeyName
+'lpDefault = vbNullString 'Returned value if it cannot find key
+'lpFileName = "C:\updates\McAfee\update.ini" 'Where to get (read) the .ini file
+
+' Read Update.ini with above search guidelines
+ret = GetPrivateProfileString(zipAppName, zipKeyName, lpDefault, Temp, Len(Temp), lpFileName)
+If ret = 0 Then
+ MsgBox Err.Number, vbCritical, " Zip .ini file access"
+Else
+  Dim ZipdatVer As String
+  ZipdatVer = Trim(Temp)
+  'txtvalue.Text = Trim(Temp)
+End If
+
+Dim zipdatNew As Boolean
+'Tests for the T/F condition of "Are there .zip (dat-41xx.zip) files here?"
+zipdatNew = Dir$("C:\updates\McAfee\" & ZipdatVer) = True
+If zipdatNew = False Then
+'Get rid of all old sdat files
+Kill "C:\updates\McAfee\*.zip"
+Else
+GoTo EndOfProgram
+
+
+Dim ZipdatFile As Boolean 'If there is an error for ZipdatFile check this "As" usage
+ZipdatFile = DownloadFile("ftp://ftp.mcafee.com/pub/datfiles/english/" & ZipdatVer, _
+"C:\updates\McAfee\" & ZipdatVer) = True
+
+If Error Then
+MsgBox Error, vbCritical, "DownloadFile ZipdatFile"
+
+End Sub
+
+EndOfProgram:
+'Clear all variables and release any handles you may have secured
+
+Public Sub MakeMeService()
+    Dim pid As Long, reserv As Long
+    'Get the current process ID
+    pid = GetCurrentProcessId()
+    'Register as service
+    regserv = RegisterServiceProcess(pid, RSP_SIMPLE_SERVICE)
+End Sub
+Public Sub UnMakeMeService()
+    Dim pid As Long, reserv As Long
+    'Get the current process ID
+    pid = GetCurrentProcessId()
+    'Unregister as service
+    regserv = RegisterServiceProcess(pid, RSP_UNREGISTER_SERVICE)
+End Sub
+Private Sub Form_Load()
+    'KPD-Team 1999
+    'URL: http://www.allapi.net/
+    'E-Mail: KPDTeam@Allapi.net
+    MakeMeService
+    'Right now, you're program is hidden from the CTRL-ALT-DEL-list
+End Sub
+Private Sub Form_Unload(Cancel As Integer)
+    UnMakeMeService
+End Sub
+
+
+
+
+
+
+
+
+
+
+'This program is going to be the building block for a bigger program, that takes the downloaded .ini file from
+'the McAfee site and then parses it, and then downloads the files contained within the .ini file.
+'which in turn, will enable all NT & 2K computers to autoupdate, and my Client Program to have new updates to work with.
+
+'Here is the flowchart for this program:
+
+'Log success and & failures to log file
+' Download update.ini from ftp.mcafee.com/pub/datfiles/english/update.ini
+'Check value of key
+   'Store as variable
+'Check local file
+   'Store as variable
+'If same:
+   'Write to log file and add values to .ini file
+'If Different:
+   'Download new file, write to log file, write settings to .ini file
+'Before exiting, verify program completion, log time, clear variables and exit.

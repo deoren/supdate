@@ -1,0 +1,20 @@
+....................................................
+....................................................
+Update Server Version:   1.4.1
+Original Concept Date:   x-x-2001
+        Revision Date:   03-08-03
+        Major Changes:   Translated from VB to C++
+Time: 22:31
+Date: 3-17-2003
+
+***************************************************
+How to read this logfile:
+-------------------------
+0 indicates success, 1 indicates failure
+***************************************************
+Error Downloading zipfile    : 0
+Error Downloading sdatfile   : 0
+Error Downloading iniFile    : 0
+Error Accessing Update.ini   : 0
+Error Accessing settings.ini : 0
+

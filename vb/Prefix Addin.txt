@@ -1,0 +1,31 @@
+'THIS SECTION OF CODE DEFINES THE PREFIX FOR SDAT41xx.EXE FILE
+'Dim lpAppName As String, DatKeyName As String, lpDefault As String, lpFileName As String
+lpAppName = "SDAT" 'Section Name to search
+DatKeyName = "Prefix" 'KeyName
+lpDefault = vbNullString 'Returned value if it cannot find key
+lpFileName = "C:\progra~1\config\update.ini" 'Where to get (read) the .ini file
+
+' Read Update.ini with above search guidelines; used to get sdatPrefix Variable
+ret = GetPrivateProfileString(lpAppName, DatKeyName, lpDefault, Temp, Len(Temp), lpFileName)
+If ret = 0 Then
+ MsgBox Err.Number, vbCritical, "Sdat Prefix .ini file access"
+Else
+  Dim sdatPrefix As String 
+  sdatPrefix = Trim(Temp)
+End If
+
+'THIS SECTION OF CODE DEFINES THE PREFIX FOR DAT-41xx.EXE FILE
+'Dim lpAppName As String, DatKeyName As String, lpDefault As String, lpFileName As String
+lpAppName = "ZIP" 'Section Name to search
+DatKeyName = "Prefix" 'KeyName
+lpDefault = vbNullString 'Returned value if it cannot find key
+lpFileName = "C:\progra~1\config\update.ini" 'Where to get (read) the .ini file
+
+' Read Update.ini with above search guidelines; used to get zipdatPrefix Variable
+ret = GetPrivateProfileString(lpAppName, DatKeyName, lpDefault, Temp, Len(Temp), lpFileName)
+If ret = 0 Then
+ MsgBox Err.Number, vbCritical, "zipdat Prefix .ini file access"
+Else
+  Dim zipdatPrefix As String 
+  sdatPrefix = Trim(Temp)
+End If
